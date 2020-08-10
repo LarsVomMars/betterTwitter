@@ -1,0 +1,13 @@
+{
+  "name": "typed-twitter",
+  "version": "0.0.1",
+  "description": "A typed twitter client",
+  "main": "index.ts",
+  "repository": "https://github.com/larsvommars/typed-twitter",
+  "author": "LarsVomMars",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "typescript": "^3.9.7"
+  }
+}
