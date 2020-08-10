@@ -2,12 +2,14 @@ import { OAuth, OAuth2 } from "oauth";
 import axios from "axios";
 
 export class API {
+    private readonly baseUrl: string;
     private readonly oauth?: OAuth;
     private readonly oauth2?: OAuth2;
     private readonly tokens?: Resource$OAuth$Tokens;
     private token?: string;
 
     constructor(auth: Resource$OAuth) {
+        this.baseUrl = "https://api.twitter.com/1.1/";
         if ("tokenSecret" in auth) {
             this.oauth = new OAuth(
                 "https://api.twitter.com/oauth/request_token",
@@ -32,7 +34,8 @@ export class API {
         }
     }
 
-    public request(url: string, method: Resource$Request$Method, data?: any): Promise<any> {
+    public request(path: string, method: Resource$Request$Method, data?: any): Promise<any> {
+        const url = this.genUrl(path);
         return new Promise(async (resolve, reject) => {
             if (!this.oauth) {
                 if (!this.token) {
@@ -81,6 +84,10 @@ export class API {
                 }
             )
         })
+    }
+
+    private genUrl(extension: string) {
+        return `${this.baseUrl}${extension}${extension.endsWith(".json") ? "" : ".json"}`
     }
 }
 
