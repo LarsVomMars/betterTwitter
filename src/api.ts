@@ -2,14 +2,14 @@ import { OAuth, OAuth2 } from "oauth";
 import axios from "axios";
 
 export class API {
-    private readonly baseUrl: string;
+    private readonly baseUrl: string = "https://api.twitter.com/";
+    private readonly apiVersion: string = "1.1";
     private readonly oauth?: OAuth;
     private readonly oauth2?: OAuth2;
     private readonly tokens?: Resource$OAuth$Tokens;
     private token?: string;
 
     constructor(auth: Resource$OAuth) {
-        this.baseUrl = "https://api.twitter.com/1.1/";
         if ("tokenSecret" in auth) {
             this.oauth = new OAuth(
                 "https://api.twitter.com/oauth/request_token",
@@ -34,7 +34,7 @@ export class API {
         }
     }
 
-    public request(path: string, method: Resource$Request$Method, data?: any): Promise<any> {
+    public request(path: string, method: Resource$Request$Method, data?: any): Promise<any> {  // TODO: Resolve any type
         const url = this.genUrl(path);
         return new Promise(async (resolve, reject) => {
             if (!this.oauth) {
@@ -42,7 +42,7 @@ export class API {
                     try {
                         this.token = await this.generateBearerToken();
                     } catch (e) {
-                        reject(e);
+                        return reject(e);
                     }
                 }
                 return axios.request({ url, method, data, headers: { Authorization: `Bearer ${this.token}` } })
@@ -51,8 +51,9 @@ export class API {
             }
 
             if (method === "GET") {
+                const getUrl = API.genGetUrl(url, data);
                 this.oauth.get(
-                    url, this.tokens!.token, this.tokens!.tokenSecret,
+                    getUrl, this.tokens!.token, this.tokens!.tokenSecret,
                     (err, result) => {
                         if (err) return reject(err);
                         if (result instanceof Buffer) return resolve(result.toJSON());
@@ -72,7 +73,7 @@ export class API {
         });
     }
 
-    private generateBearerToken(): Promise<any> {
+    private generateBearerToken(): Promise<any> {  // TODO: Resolve any type
         return new Promise((resolve, reject) => {
             if (!this.oauth2) return reject(new Error("Oauth2 not loaded!"));
             this.oauth2.getOAuthAccessToken(
@@ -86,8 +87,15 @@ export class API {
         })
     }
 
-    private genUrl(extension: string) {
-        return `${this.baseUrl}${extension}${extension.endsWith(".json") ? "" : ".json"}`
+    private genUrl(extension: string): string {
+        return `${this.baseUrl}${this.apiVersion}/${extension}.json`;
+    }
+
+    private static genGetUrl(url: string, data?: any): string {
+        if (!data) return url;
+        let gp = "";
+        for (const did in data) gp += `${gp.length > 0 ? '&' : '?'}${did}=${data[did]}`;
+        return url + gp;
     }
 }
 
