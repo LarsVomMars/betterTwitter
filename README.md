@@ -1,1 +1,1 @@
-# typed-twitter
+# betterTwitter

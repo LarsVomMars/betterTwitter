@@ -1,4 +1,5 @@
 node_modules/
-build/
 test/
+dist/
 .idea/
+.vscode/
