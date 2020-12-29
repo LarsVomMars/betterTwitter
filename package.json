@@ -18,7 +18,10 @@
     "lint": "./node_modules/.bin/eslint src/ --ext ts",
     "checkFormat": "./node_modules/.bin/prettier -c {*,src/**/*}.ts",
     "format": "./node_modules/.bin/prettier -w {*,src/**/*}.ts",
-    "test": "node dist/test/test.js"
+    "test": "node dist/test/test.js",
+    "postinstall": "husky install",
+    "prepublishOnly": "pinst --disable",
+    "postpublish": "pinst --enable"
   },
   "devDependencies": {
     "@types/node": "^14.0.27",
@@ -27,6 +30,8 @@
     "eslint": "^7.7.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^5.0.6",
+    "pinst": "^2.1.1",
     "prettier": "^2.0.5",
     "typescript": "^3.9.7"
   }
