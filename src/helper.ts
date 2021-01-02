@@ -1,19 +1,6 @@
 export function buildParameterString(url: string, oauth: KeyValuePair, data?: any): string {
-    const base = sortObject(encodeObject(mergeObjects(oauth, data, querystringToObject(url.split("?")[1]))));
-    let res = "";
-    for (const { name, value } of base) {
-        if (Array.isArray(value)) {
-            value.sort();
-            let str = "";
-            for (const item of value) {
-                str += `${name}=${item}&`;
-            }
-            res += str.slice(0, -1);
-        } else {
-            res += `${name}=${value}&`;
-        }
-    }
-    return res.slice(0, -1);
+    const base = encodeObject(mergeObjects(oauth, data, querystringToObject(url.split("?")[1])));
+    return buildDataString(base);
 }
 
 export function sortObject(data?: any): ParameterPair[] {
@@ -83,15 +70,37 @@ export function encodeObject(data: any): any {
 
 export function buildDataString(data: any): string {
     let encodedData = "";
-    for (const key in data) {
-        if (!Object.prototype.hasOwnProperty.call(data, key)) continue;
-        encodedData += `${encodedData.length > 0 ? "&" : ""}${encodeURI(key)}=${encodeURI(data[key])}`; // TODO: Test multi-parameter
+    for (const { name, value } of sortObject(data)) {
+        if (Array.isArray(value)) {
+            value.sort();
+            let str = "";
+            for (const item of value) {
+                str += `${name}=${item}&`;
+            }
+            encodedData += str.slice(0, -1);
+        } else {
+            encodedData += `${name}=${value}&`;
+        }
     }
-    return encodedData;
+    return encodedData.slice(0, -1);
+}
+
+export function createNonce(nonceSize = 32): string {
+    const nonceChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let nonce = "";
+    for (let i = 0; i < nonceSize; i++) {
+        const randNum = Math.floor(Math.random() * nonceChars.length);
+        nonce += nonceChars[randNum];
+    }
+    return nonce;
 }
 
 export function base64(str: string): string {
     return Buffer.from(str, "utf8").toString("base64");
+}
+
+export function getVariableName(variable: any): string {
+    return Object.keys({ variable })[0];
 }
 
 export interface ParameterPair {

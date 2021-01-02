@@ -7,9 +7,10 @@ import {
     buildParameterString,
     buildDataString,
     base64,
-    KeyValuePair,
+    createNonce,
 } from "./helper";
-import { makeRequest, RequestMethods } from "./request";
+import type { KeyValuePair } from "./helper";
+import { GenericResponse, makeRequest, paginationRequest, RequestMethods } from "./request";
 
 export class OAuthHandler {
     private readonly handler: OAuth1 | OAuth2;
@@ -50,7 +51,7 @@ export class OAuth1 {
             Authorization: this.getHeader(method, url, data),
         };
 
-        return await makeRequest(url, method, headers, encodedData);
+        return paginationRequest(url, method, headers, encodedData);
     }
 
     private getHeader(method: RequestMethods, url: string, data?: any): string {
@@ -68,7 +69,7 @@ export class OAuth1 {
     private authorize(method: RequestMethods, url: string, data?: any): KeyValuePair {
         const oauthParameters: KeyValuePair = {
             oauth_consumer_key: this.auth.consumerKey,
-            oauth_nonce: this.createNonce(),
+            oauth_nonce: createNonce(),
             oauth_signature_method: this.oauthSignatureMethod,
             oauth_timestamp: getTimestamp(),
             oauth_version: this.oauthVersion,
@@ -82,16 +83,6 @@ export class OAuth1 {
         const base = `${method}&${encodeData(url.split("?")[0])}&${encodeData(buildParameterString(url, oauth, data))}`;
         const key = `${encodeData(this.auth.consumerSecret)}&${encodeData(this.auth.tokenSecret)}`;
         return createHmac("sha1", key).update(base).digest("base64");
-    }
-
-    private createNonce(): string {
-        const nonceChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        let nonce = "";
-        for (let i = 0; i < this.nonceSize; i++) {
-            const randNum = Math.floor(Math.random() * nonceChars.length);
-            nonce += nonceChars[randNum];
-        }
-        return nonce;
     }
 }
 
@@ -126,7 +117,7 @@ export class OAuth2 {
             Authorization,
         };
 
-        return await makeRequest(url, method, headers, encodedData);
+        return paginationRequest(url, method, headers, encodedData);
     }
 }
 

@@ -1,5 +1,6 @@
-import { OAuthHandler, OAuthData } from "./OAuthHandler";
-import { RequestMethods } from "./request";
+import { OAuthHandler } from "./OAuthHandler";
+import type { OAuthData } from "./OAuthHandler";
+import type { RequestMethods } from "./request";
 
 export class API {
     private readonly baseUrl: string = "https://api.twitter.com";
@@ -16,6 +17,6 @@ export class API {
     }
 
     private genUrl(extension: string): string {
-        return `${this.baseUrl}/${this.apiVersion}/${extension}.json`;
+        return `${this.baseUrl}/${this.apiVersion}/${extension}`;
     }
 }
