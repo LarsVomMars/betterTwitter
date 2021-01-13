@@ -99,8 +99,12 @@ export function base64(str: string): string {
     return Buffer.from(str, "utf8").toString("base64");
 }
 
-export function getVariableName(variable: any): string {
-    return Object.keys({ variable })[0];
+export async function generatorToArray(generator: AsyncGenerator): Promise<any[]> {
+    const result = [];
+    for await (const value of generator) {
+        result.push(value);
+    }
+    return result;
 }
 
 export interface ParameterPair {

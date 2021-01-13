@@ -8,12 +8,12 @@ export default class Users {
         this.api = api;
     }
 
-    public getUserTweets(userID: string): Promise<Tweets> {
+    public getUserTweets(userID: string): AsyncGenerator<Tweets> {
         const path = `users/${userID}/tweets`;
         return this.api.request(path, "GET");
     }
 
-    public getUserMentions(userID: string): Promise<Tweets> {
+    public getUserMentions(userID: string): AsyncGenerator<Tweets> {
         const path = `users/${userID}/mentions`;
         return this.api.request(path, "GET");
     }

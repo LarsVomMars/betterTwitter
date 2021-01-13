@@ -11,7 +11,7 @@ export class API {
         this.handler = new OAuthHandler(auth);
     }
 
-    public request(path: string, method: RequestMethods, data?: any): Promise<any> {
+    public request(path: string, method: RequestMethods, data?: any): AsyncGenerator<any> {
         const url = this.genUrl(path);
         return this.handler.request(url, method, data);
     }

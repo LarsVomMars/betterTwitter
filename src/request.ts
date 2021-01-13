@@ -11,42 +11,6 @@ export const DefaultHeaders: OutgoingHttpHeaders = {
     Connection: "close",
 };
 
-// export async function* paginationRequest(
-//     url: string,
-//     method: RequestMethods,
-//     headers: OutgoingHttpHeaders,
-//     dataStr?: string,
-// ): AsyncGenerator<Promise<any>> {
-//     const resurl = `${url}${url.includes("?") ? "&" : "?"}max_results=100`
-//     let resp = (await makeRequest(resurl, method, headers, dataStr)) as GenericResponse;
-//     while (resp.meta.next_token) {
-//         yield resp.data;
-//         const pgurl = `${resurl}&pagination_token=${resp.meta.next_token}`;
-//         resp = (await makeRequest(pgurl, method, headers, dataStr)) as GenericResponse;
-//     }
-//     return resp.data;
-// }
-
-export async function paginationRequest(
-    url: string,
-    method: RequestMethods,
-    headers: OutgoingHttpHeaders,
-    dataStr?: string,
-    ctr = 10,
-): Promise<any> {
-    const result = [];
-    const resurl = `${url}${url.includes("?") ? "&" : "?"}max_results=100`;
-    let resp = (await makeRequest(resurl, method, headers, dataStr)) as GenericResponse;
-    result.push(resp.data);
-    while (resp.meta.next_token && ctr !== 0) {
-        const pgurl = `${resurl}&pagination_token=${resp.meta.next_token}`;
-        resp = (await makeRequest(pgurl, method, headers, dataStr)) as GenericResponse;
-        result.push(resp.data);
-        ctr--;
-    }
-    return result;
-}
-
 export function makeRequest(
     url: string,
     method: RequestMethods,
