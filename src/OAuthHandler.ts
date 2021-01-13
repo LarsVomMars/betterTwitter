@@ -24,8 +24,8 @@ export class OAuthHandler {
         }
     }
 
-    public request(url: string, method: RequestMethods, data?: any): AsyncGenerator<any> {
-        return this.handler.request(url, method, data);
+    public request(url: string, method: RequestMethods, data?: any, pag = true): AsyncGenerator<any> {
+        return this.handler.request(url, method, data, pag);
     }
 }
 
@@ -44,23 +44,31 @@ export class OAuth1 {
         this.oauthSeparator = ",";
     }
 
-    public async* request(url: string, method: RequestMethods, data?: any): AsyncGenerator<any> {
+    public async *request(url: string, method: RequestMethods, data?: any, pag = true): AsyncGenerator<any> {
         const encodedData = buildDataString(data);
         const headers: OutgoingHttpHeaders = { "Content-Length": Buffer.byteLength(encodedData) };
-
-        const resurl = `${url}${url.includes("?") ? "&" : "?"}max_results=100`
-        headers.Authorization = this.getHeader(method, resurl, data);
-        let resp = (await makeRequest(resurl, method, headers, encodedData)) as GenericResponse;
-        while (resp.meta.next_token) {
+        // TODO: Don't paginate everything
+        if (pag) {
+            const resurl = `${url}${url.includes("?") ? "&" : "?"}max_results=100`;
+            headers.Authorization = this.getHeader(method, resurl, data);
+            let resp = (await makeRequest(resurl, method, headers, encodedData)) as GenericResponse;
+            while (resp.meta.next_token) {
+                for (const element of resp.data) {
+                    yield element;
+                }
+                const pgurl = `${resurl}&pagination_token=${resp.meta.next_token}`;
+                headers.Authorization = this.getHeader(method, pgurl, data);
+                resp = (await makeRequest(pgurl, method, headers, encodedData)) as GenericResponse;
+            }
             for (const element of resp.data) {
                 yield element;
             }
-            const pgurl = `${resurl}&pagination_token=${resp.meta.next_token}`;
-            headers.Authorization = this.getHeader(method, pgurl, data);
-            resp = (await makeRequest(pgurl, method, headers, encodedData)) as GenericResponse;
-        }
-        for (const element of resp.data) {
-            yield element;
+        } else {
+            headers.Authorization = this.getHeader(method, url, data);
+            const resp = (await makeRequest(url, method, headers, encodedData)) as GenericResponse;
+            for (const element of resp.data) {
+                yield element;
+            }
         }
     }
 
@@ -116,7 +124,7 @@ export class OAuth2 {
         return token.access_token;
     }
 
-    public async* request(url: string, method: RequestMethods, data?: any): AsyncGenerator<any> {
+    public async *request(url: string, method: RequestMethods, data?: any, pag = true): AsyncGenerator<any> {
         if (!this.bearerToken) this.bearerToken = await this.refreshToken(); // Will request twice if called directly after init
 
         const encodedData = buildDataString(data);
@@ -127,17 +135,24 @@ export class OAuth2 {
             Authorization,
         };
 
-        const resurl = `${url}${url.includes("?") ? "&" : "?"}max_results=100`
-        let resp = (await makeRequest(resurl, method, headers, encodedData)) as GenericResponse;
-        while (resp.meta.next_token) {
+        if (pag) {
+            const resurl = `${url}${url.includes("?") ? "&" : "?"}max_results=100`;
+            let resp = (await makeRequest(resurl, method, headers, encodedData)) as GenericResponse;
+            while (resp.meta.next_token) {
+                for (const element of resp.data) {
+                    yield element;
+                }
+                const pgurl = `${resurl}&pagination_token=${resp.meta.next_token}`;
+                resp = (await makeRequest(pgurl, method, headers, encodedData)) as GenericResponse;
+            }
             for (const element of resp.data) {
                 yield element;
             }
-            const pgurl = `${resurl}&pagination_token=${resp.meta.next_token}`;
-            resp = (await makeRequest(pgurl, method, headers, encodedData)) as GenericResponse;
-        }
-        for (const element of resp.data) {
-            yield element;
+        } else {
+            const resp = (await makeRequest(url, method, headers, encodedData)) as GenericResponse;
+            for (const element of resp.data) {
+                yield element;
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 import { API } from "./src/api";
 import type { OAuthData } from "./src/OAuthHandler";
-import Users from "./src/users";
-import Tweets from "./src/tweets";
+import Users from "./src/endpoints/users";
+import Tweets from "./src/endpoints/tweets";
 
 export default class Twitter {
     public readonly users: Users;

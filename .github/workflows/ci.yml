@@ -23,7 +23,5 @@ jobs:
         run: npm i -D
       - name: Lint
         run: npm run lint
-      - name: CheckFormat
-        run: npm run checkFormat
       - name: Build
         run: npm run build
