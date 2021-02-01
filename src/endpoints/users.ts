@@ -42,4 +42,14 @@ export default class UsersAPI {
         }
         return this.api.request(path, "GET", undefined, false);
     }
+
+    public getUserFollowers(id: string): AsyncGenerator<Users> {
+        const path = `users/${id}/followers`;
+        return this.api.request(path, "GET", undefined, false);
+    }
+
+    public getUserFollowing(id: string): AsyncGenerator<Users> {
+        const path = `users/${id}/following`;
+        return this.api.request(path, "GET", undefined, false);
+    }
 }

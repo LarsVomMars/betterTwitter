@@ -19,4 +19,9 @@ export default class TweetsAPI {
         }
         return this.api.request(url, "GET", undefined, false);
     }
+
+    // public searchRecent(query: string): AsyncGenerator<Tweets> {
+    //     const path = `tweets/search/recent?query=${query}`;
+    //     return this.api.request(path, "GET");
+    // }
 }
