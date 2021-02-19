@@ -23,7 +23,7 @@
     "postpublish": "pinst --enable"
   },
   "devDependencies": {
-    "@types/node": "^14.14.28",
+    "@types/node": "^14.14.30",
     "@typescript-eslint/eslint-plugin": "^4.15.0",
     "@typescript-eslint/parser": "^4.15.0",
     "eslint": "^7.20.0",
